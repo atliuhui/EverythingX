@@ -3,6 +3,11 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+assets
+src/EverythingX.API/extendwords.txt
+src/EverythingX.API/stopwords.txt
+src/EverythingX.API/synonyms.txt
+
 # User-specific files
 *.rsuser
 *.suo
