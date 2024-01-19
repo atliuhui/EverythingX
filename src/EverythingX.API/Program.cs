@@ -12,8 +12,9 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
-app.MapGet("/Analyze", async ([FromQuery(Name = "t")] string text) =>
+app.MapGet("/Analyze", async ([FromQuery(Name = "t")] string text, [FromQuery(Name = "onlykey")] bool? onlykeyOption) =>
 {
+    var onlykey = onlykeyOption ?? false;
     var indices = Path.Combine(Environment.CurrentDirectory, @"assets\indices");
     var things = new ThingService(new DirectoryInfo(indices));
 
@@ -23,7 +24,14 @@ app.MapGet("/Analyze", async ([FromQuery(Name = "t")] string text) =>
     var result = things.Analyze(text);
     Console.WriteLine($"{DateTime.Now.ToString("s")}|Clear completed");
 
-    return Results.Ok(result);
+    if (onlykey)
+    {
+        return Results.Ok(result.Keys);
+    }
+    else
+    {
+        return Results.Ok(result);
+    }
 });
 app.MapPost("/Index", async ([FromBody] IEnumerable<string> projections) =>
 {
