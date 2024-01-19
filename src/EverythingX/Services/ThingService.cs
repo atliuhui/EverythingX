@@ -5,6 +5,7 @@ using Lucene.Net.Index;
 using Lucene.Net.QueryParsers.Classic;
 using Lucene.Net.Search;
 using Lucene.Net.Search.Highlight;
+using System.Text.RegularExpressions;
 
 namespace EverythingX.Services
 {
@@ -14,7 +15,7 @@ namespace EverythingX.Services
             : base(root) { }
 
         public new bool Ready => this.Ready();
-        public IEnumerable<string> Analyze(string text)
+        public Dictionary<string, int> Analyze(string text)
         {
             return this.AnalyzerWrap(analyzer =>
             {
@@ -32,7 +33,9 @@ namespace EverythingX.Services
                     stream.End();
                 }
 
-                return words;
+                var stat = words.Distinct().ToDictionary(item => item, item => Regex.Matches(text, item, RegexOptions.IgnoreCase).Count);
+
+                return stat;
             });
         }
         public ThingSearchResult Search(Query query, int takeDocuments = 20, int takeFragments = 5)

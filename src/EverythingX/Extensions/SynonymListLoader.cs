@@ -7,7 +7,6 @@ namespace EverythingX.Extensions
     {
         private const string SYNONYM_FILE_COMMENT = "//";
         private const string SYNONYM_LINE_COMMENT = "|";
-        private const string SYNONYM_WORD_PRIMARY = "=";
         private const string SYNONYM_WORD_SECONDARY = ",";
 
         public static SynonymMap GetSynonymMap(TextReader reader, LuceneVersion matchVersion)
@@ -30,10 +29,12 @@ namespace EverythingX.Extensions
                         line = line.Substring(0, comment).Trim();
                     }
 
-                    var primary = line.Split(SYNONYM_WORD_PRIMARY).ElementAt(0).Trim();
-                    var secondary = line.Split(SYNONYM_WORD_PRIMARY).ElementAt(1).Trim();
-                    var words = secondary.Split(SYNONYM_WORD_SECONDARY).Select(item => item.Trim()).ToArray();
-                    builder.Add(new CharsRef(primary), SynonymMap.Builder.Join(words, new CharsRef()), true);
+                    var words = line.Split(SYNONYM_WORD_SECONDARY).Select(item => item.Trim()).Distinct().ToArray();
+                    foreach (var word in words)
+                    {
+                        var diffs = words.Except(new string[] { word }).ToArray();
+                        builder.Add(new CharsRef(word), SynonymMap.Builder.Join(diffs, new CharsRef()), true);
+                    }
                 }
 
                 return builder.Build();

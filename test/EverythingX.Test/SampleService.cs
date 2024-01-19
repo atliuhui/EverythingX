@@ -3,6 +3,7 @@ using Lucene.Net.Analysis.TokenAttributes;
 using Lucene.Net.Documents;
 using Lucene.Net.Index;
 using Lucene.Net.Search;
+using System.Text.RegularExpressions;
 
 namespace EverythingX.Test
 {
@@ -32,7 +33,7 @@ namespace EverythingX.Test
                 });
             });
         }
-        public IEnumerable<string> Analyze(string text)
+        public Dictionary<string, int> Analyze(string text)
         {
             return this.AnalyzerWrap(analyzer =>
             {
@@ -50,7 +51,9 @@ namespace EverythingX.Test
                     stream.End();
                 }
 
-                return words;
+                var stat = words.Distinct().ToDictionary(item => item, item => Regex.Matches(text, item, RegexOptions.IgnoreCase).Count);
+
+                return stat;
             });
         }
 
